@@ -3,59 +3,34 @@ import pandas as pd
 
 app = Flask(__name__)
 
+# Load your data into a global DataFrame
+df = pd.read_csv("combustiveis.csv")
+
 @app.route("/api", methods=['GET'])
 def get_combustiveis():
     # Get query parameters from the request
     ano = request.args.get('ano', type=int)
+    unidade_medida = request.args.get('unidade_medida', type=str)
     limit = request.args.get('limit', type=int)
 
-    if ano is None:
+    if ano is None or unidade_medida is None:
         return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    contador = 0
+    # Filter the DataFrame
+    filtered_df = df.loc[(df['ano'] == ano) & (df['unidade_medida'] == unidade_medida), ['ano', 'unidade_medida', 'preco_venda']]
 
-    tabela = pd.DataFrame()
-    for chunk in pd.read_csv("concatenated_result.csv", chunksize=10000):
-        colunas = ["ano", "sigla_uf", "preco_venda"]
-
-        chunk_filtrado = chunk[colunas]
-
-        resumo = chunk_filtrado.groupby("sigla_uf", as_index=False).sum()
-
-        tabela = pd.concat([tabela, resumo])
-
-        contador += 1
-
-        if contador > 2:
-            break
-
-    if tabela.empty:
+    if filtered_df.empty:
         return jsonify({'status': 404, 'message': 'No data found'}), 404
 
-    result_dict = tabela.to_dict()
-    return jsonify(result_dict)
+    # Optionally, limit the number of rows if 'limit' is provided
+    if limit:
+        filtered_df = filtered_df.head(limit)
+
+    # Convert the filtered DataFrame to a list of dictionaries and jsonify it
+    result_list = filtered_df.to_dict(orient='records')
+    return jsonify(result_list)
 
 if __name__ == '__main__':
     app.run()
-
-# +----------------------+------+------+-----+---------+----------------+                                                 
-# | Field                | Type | Null | Key | Default | Extra          |                                                 
-# +----------------------+------+------+-----+---------+----------------+                                                 
-# | id                   | int  | NO   | PRI | NULL    | auto_increment |                                                 
-# | ano                  | text | YES  |     | NULL    |                |                                                 
-# | sigla_uf             | text | YES  |     | NULL    |                |                                                 
-# | id_municipio         | text | YES  |     | NULL    |                |                                                 
-# | bairro_revenda       | text | YES  |     | NULL    |                |                                                 
-# | cep_revenda          | text | YES  |     | NULL    |                |                                                 
-# | endereco_revenda     | text | YES  |     | NULL    |                |                                                 
-# | cnpj_revenda         | text | YES  |     | NULL    |                |                                                 
-# | nome_estabelecimento | text | YES  |     | NULL    |                |                                                 
-# | bandeira_revenda     | text | YES  |     | NULL    |                |                                                 
-# | data_coleta          | text | YES  |     | NULL    |                |                                                 
-# | produto              | text | YES  |     | NULL    |                |                                                 
-# | unidade_medida       | text | YES  |     | NULL    |                |                                                 
-# | preco_compra         | text | YES  |     | NULL    |                |                                                 
-# | preco_venda          | text | YES  |     | NULL    |                |                                                 
-# 2016+----------------------+------+------+-----+---------+----------------+ 
