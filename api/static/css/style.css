@@ -57,7 +57,7 @@ input[type=text]:hover{
 }
 /* width */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 5px;
   }
   
   /* Track */
@@ -68,7 +68,7 @@ input[type=text]:hover{
   /* Handle */
   ::-webkit-scrollbar-thumb {
     background: #888;
-    border-radius: 6px;
+    border-radius: 4px;
   }
   
   /* Handle on hover */

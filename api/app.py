@@ -5,14 +5,13 @@ import pandas as pd
 
 app = Flask(__name__)
 
-# Load your data into a global DataFrame
 df = pd.read_csv("combustiveis.csv")
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/api", methods=['GET'])
+@app.route("/api/listarPorAnoTipo", methods=['GET'])
 def get_combustiveis():
     # Get query parameters from the request
     ano = request.args.get('ano', type=int)
@@ -36,6 +35,35 @@ def get_combustiveis():
 
     # Convert the filtered DataFrame to a list of dictionaries and jsonify it
     result_list = filtered_df.to_dict(orient='records')
+    return jsonify(result_list)
+
+@app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
+def get_combustiveis_media():
+    # Get query parameters from the request
+    ano = request.args.get('ano', type=int)
+    produto = request.args.get('produto', type=str)
+    limit = request.args.get('limit', type=int)
+
+    if ano is None or produto is None:
+        return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
+
+    pd.options.display.float_format = "{:,.2f}".format
+
+    # Filter the DataFrame based on 'ano' and 'produto'
+    filtered_df = df[(df['ano'] == ano) & (df['produto'] == produto)]
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'message': 'No data found'}), 404
+
+    # Calculate the average 'preco_venda' grouped by 'produto' and 'sigla_uf'
+    result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
+
+    # Optionally, limit the number of rows if 'limit' is provided
+    if limit:
+        result_df = result_df.head(limit)
+
+    # Convert the result DataFrame to a list of dictionaries and jsonify it
+    result_list = result_df.to_dict(orient='records')
     return jsonify(result_list)
 
 if __name__ == '__main__':
