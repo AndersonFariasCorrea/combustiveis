@@ -40,22 +40,29 @@ app.controller('myCtrl', function($scope) {
 
     const ctx = document.getElementById('myChart');
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: $scope.medias.filter(item => item.cidade).map(item => item.cidade),
-            datasets: [{
-            label: '# Média de compra',
-            data: $scope.medias.filter(item => item.média_compra).map(item => item.média_compra),
-            borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-            y: {
-                beginAtZero: true
+    $(document).ready(() => {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: $scope.medias.filter(item => item.cidade).map(item => item.cidade),
+                datasets: [{
+                    label: '# Média de compra',
+                    data: $scope.medias.filter(item => item.média_compra).map(item => item.média_compra),
+                    borderWidth: 1
+                },
+                {
+                    label: '# Média de compra',
+                    data: $scope.medias.filter(item => item.média_compra).map(item => item.média_compra),
+                    borderWidth: 1
+                }   ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
             }
-            }
-        }
+        });
     });
 });

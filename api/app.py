@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
-# Import the database configuration from core/db_conn.py
-# import mysql.connector
 
 app = Flask(__name__)
 
-df = pd.read_csv("combustiveis.csv")
+df = pd.read_csv("combustiveis2009.csv")
 
 @app.route("/")
 def index():
@@ -13,7 +11,7 @@ def index():
 
 @app.route("/api/listarPorAnoTipo", methods=['GET'])
 def get_combustiveis():
-    # Get query parameters from the request
+    # Obter os parametps para a query
     ano = request.args.get('ano', type=int)
     produto = request.args.get('produto', type=str)
     limit = request.args.get('limit', type=int)
@@ -23,23 +21,23 @@ def get_combustiveis():
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    # Filter the DataFrame
+    # filtra o DataFrame com os parametros
     filtered_df = df.loc[(df['ano'] == ano) & (df['produto'] == produto), ['ano', 'produto', 'preco_venda', 'sigla_uf']]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'message': 'No data found'}), 404
 
-    # Optionally, limit the number of rows if 'limit' is provided
+    # opcao de limitar a quatidade de retorno
     if limit:
         filtered_df = filtered_df.head(limit)
 
-    # Convert the filtered DataFrame to a list of dictionaries and jsonify it
+    # converte DataFrame final pra uma lista de dicionário e depois json
     result_list = filtered_df.to_dict(orient='records')
     return jsonify(result_list)
 
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
-    # Get query parameters from the request
+    # Obter os parametps para a query
     ano = request.args.get('ano', type=int)
     produto = request.args.get('produto', type=str)
     limit = request.args.get('limit', type=int)
@@ -49,20 +47,20 @@ def get_combustiveis_media():
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    # Filter the DataFrame based on 'ano' and 'produto'
+    # filtra o DataFrame com os parametros
     filtered_df = df[(df['ano'] == ano) & (df['produto'] == produto)]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'message': 'No data found'}), 404
 
-    # Calculate the average 'preco_venda' grouped by 'produto' and 'sigla_uf'
+    # média preco_venda por produto e sigla_uf
     result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
 
-    # Optionally, limit the number of rows if 'limit' is provided
+    # opcao de limitar a quatidade de retorno
     if limit:
         result_df = result_df.head(limit)
 
-    # Convert the result DataFrame to a list of dictionaries and jsonify it
+    # converte DataFrame final pra uma lista de dicionário e depois json
     result_list = result_df.to_dict(orient='records')
     return jsonify(result_list)
 
