@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 import pandas as pd
+import datetime
 
 app = Flask(__name__)
 
-df = pd.read_csv("combustiveis2009.csv")
+df = pd.read_csv("api/combustiveis2009.csv")
 
 @app.route("/")
 def index():
@@ -38,17 +39,21 @@ def get_combustiveis():
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
     # Obter os parametps para a query
-    ano = request.args.get('ano', type=int)
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
     produto = request.args.get('produto', type=str)
     limit = request.args.get('limit', type=int)
 
-    if ano is None or produto is None:
+    if anoFrom is None or produto is None:
         return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
+    
+    if anoTo is None:
+        anoTo = datetime.datetime.now().year
 
     pd.options.display.float_format = "{:,.2f}".format
 
     # filtra o DataFrame com os parametros
-    filtered_df = df[(df['ano'] == ano) & (df['produto'] == produto)]
+    filtered_df = df[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)) & (df['produto'] == produto)]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'message': 'No data found'}), 404
