@@ -38,7 +38,7 @@ def get_combustiveis():
 
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
-    # Obter os parametps para a query
+    # Obtain the parameters for the query
     anoFrom = request.args.get('anoFrom', type=int)
     anoTo = request.args.get('anoTo', type=int)
     produto = request.args.get('produto', type=str)
@@ -46,28 +46,45 @@ def get_combustiveis_media():
 
     if anoFrom is None or produto is None:
         return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
-    
+
     if anoTo is None:
         anoTo = datetime.datetime.now().year
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    # filtra o DataFrame com os parametros
+    # Filter the DataFrame with the parameters
     filtered_df = df[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)) & (df['produto'] == produto)]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'message': 'No data found'}), 404
 
+    # Calculate the count of distinct 'cnpj_revenda'
+    count_distinct_cnpj = filtered_df['cnpj_revenda'].nunique()
+
+    # Calculate the average 'preco_compra' and 'preco_venda'
+    avg_preco_compra = filtered_df['preco_compra'].mean()
+    avg_preco_venda = filtered_df['preco_venda'].mean()
+
     # média preco_venda por produto e sigla_uf
     result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
 
-    # opcao de limitar a quatidade de retorno
+    # Option to limit the number of results
     if limit:
         result_df = result_df.head(limit)
 
-    # converte DataFrame final pra uma lista de dicionário e depois json
+    # Convert DataFrame final to a list of dictionaries and then to JSON
     result_list = result_df.to_dict(orient='records')
+
+    # Create a JSON response that includes the count and averages
+    result_list = {
+        'count_distinct_cnpj': count_distinct_cnpj,
+        'avg_preco_compra': avg_preco_compra,
+        'avg_preco_venda': avg_preco_venda,
+        'result_list': result_list
+    }
+
     return jsonify(result_list)
+
 
 if __name__ == '__main__':
     app.run()
