@@ -59,7 +59,7 @@
                                 <div class="col-4">
                                     <div class="col-3">
                                         Postos <br>
-                                        <p class="h4 text-primary fw-bolder text-center" ng-bind="data.count_distinct_cnpj"></p>
+                                        <p class="h4 text-primary fw-bolder text-center" ng-bind="data.count_distinct_cnpj "></p>
                                     </div>
                                 </div>
                                 <div class="col-8">
@@ -67,11 +67,11 @@
                                         <div class="col-2"></div>
                                         <div class="col-5">
                                             Valor de compra<br>
-                                            <p class="h4 text-primary fw-bolder text-center" ng-bind="'R$' + data.avg_preco_compra"></p>
+                                            <p class="h4 text-primary fw-bolder text-center" ng-bind="'R$' + (data.avg_preco_compra | number : 2)"></p>
                                         </div>
                                         <div class="col-4">
                                             Valor de venda<br>
-                                            <p class="h4 text-success fw-bolder text-center" ng-bind="'R$' + data.avg_preco_venda"></p>
+                                            <p class="h4 text-success fw-bolder text-center" ng-bind="'R$' + (data.avg_preco_venda | number : 2)"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -79,7 +79,7 @@
                         </div>
                         <div class="p-3"></div>
                         <div class="p-3 border bg-light dashboard-card">
-                            <h6>Média por cidades anos selecionados:</h6>
+                            <h6>Média por Estados anos selecionados:</h6>
                             <div>
                                 <canvas id="myChart"></canvas>
                             </div>

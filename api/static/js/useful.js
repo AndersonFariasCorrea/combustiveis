@@ -21,21 +21,21 @@ function get(fn, method, data) {
             data: data,
             dataType: 'json'
         }).done(function(result) {
-            if (result.length > 0) {
+            if (Object.keys(result).length > 0) {
                 resolve(result);
             } else {
-                resolve([]); // Resolve with an empty array if result length is 0
+                resolve([]);
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
             console.error('An error occurred, errorThrown:', errorThrown);
             console.error('An error occurred, status:', textStatus);
             console.error('An error occurred, jqXHR:', jqXHR);
-            reject([]); // Reject with an empty array on failure
+            reject([]);
         });
     })
     .catch(function(error) {
         console.error('Error or empty result:', error);
-        return []; // Return an empty array for errors
+        return []; 
     });
 }
 

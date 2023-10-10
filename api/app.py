@@ -4,7 +4,7 @@ import datetime
 
 app = Flask(__name__)
 
-df = pd.read_csv("api/combustiveis2009.csv")
+df = pd.read_csv("api/bq-results-2009.csv")
 
 @app.route("/")
 def index():
@@ -80,11 +80,10 @@ def get_combustiveis_media():
         'count_distinct_cnpj': count_distinct_cnpj,
         'avg_preco_compra': avg_preco_compra,
         'avg_preco_venda': avg_preco_venda,
-        'result_list': result_list
+        'list': result_list
     }
 
     return jsonify(result_list)
-
 
 if __name__ == '__main__':
     app.run()

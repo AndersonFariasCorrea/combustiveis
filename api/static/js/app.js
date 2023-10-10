@@ -36,7 +36,6 @@ app.controller('myCtrl', function ($scope) {
         { nome: 'Tocantins', sigla: 'TO' }
     ];
     $scope.bairros = ["Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"];
-    $scope.medias = [{ ano: 2014, cidade: "Goiânia", tipo: "gasolina", média_compra: 3.22, media_venda: 4.30 }, { ano: 2014, cidade: "Aparecida Goiânia", tipo: "gasolina", média_compra: 3.52, media_venda: 4.90 }];
 
     $scope.yearIsGreaterFilter = function (year) {
         if (typeof $scope.combustivel?.yearFrom !== 'undefined') return year > $scope.combustivel.yearFrom;
@@ -46,14 +45,14 @@ app.controller('myCtrl', function ($scope) {
         const ctx = document.getElementById('myChart');
         
         get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
-            if (result.result_list) {
+            if (result) {
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: result.result_list.filter(item => item.sigla_uf).map(item => item.sigla_uf),
+                        labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf),
                         datasets: [{
                             label: '# Média de compra',
-                            data: result.result_list.filter(item => item.preco_venda).map(item => item.preco_venda),
+                            data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),
                             borderWidth: 1
                         }]
                     },
@@ -65,11 +64,11 @@ app.controller('myCtrl', function ($scope) {
                         }
                     }
                 });
+                $scope.data = result;
+                $scope.$digest();
             } else {
-                console.error('No result_list found in the response.');
+                console.error('No list found in the response.');
             }
-            
-            $scope.data = result;
         })
         .catch(function (error) {
             // Handle errors here
