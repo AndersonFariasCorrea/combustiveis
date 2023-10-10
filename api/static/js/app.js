@@ -43,6 +43,7 @@ app.controller('myCtrl', function ($scope) {
 
     $scope.barChart = (query) => {
         const ctx = document.getElementById('myChart');
+        if (ctx.length > 0) ctx.destroy();
         
         get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
             if (result) {
