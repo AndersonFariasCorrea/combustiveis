@@ -43,11 +43,11 @@ app.controller('myCtrl', function ($scope) {
 
     $scope.barChart = (query) => {
         const ctx = document.getElementById('myChart');
-        if (ctx.length > 0) ctx.destroy();
+        if (typeof $scope.genralFilterChart !== 'undefined')  $scope.genralFilterChart.destroy();
         
         get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
             if (result) {
-                new Chart(ctx, {
+                $scope.genralFilterChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf),
@@ -70,8 +70,7 @@ app.controller('myCtrl', function ($scope) {
             } else {
                 console.error('No list found in the response.');
             }
-        })
-        .catch(function (error) {
+        }).catch(function (error) {
             // Handle errors here
             console.error('Error:', error);
         });
@@ -79,7 +78,7 @@ app.controller('myCtrl', function ($scope) {
     
 
     $scope.filter = () => {
-        $scope.barChart({
+         $scope.barChart({
             anoFrom: $scope.combustivel.yearFrom,
             anoTo: $scope.combustivel.yearTo,
             produto: $scope.combustivel.tipo

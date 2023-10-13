@@ -75,7 +75,6 @@ def get_combustiveis_media():
     # Convert DataFrame final to a list of dictionaries and then to JSON
     result_list = result_df.to_dict(orient='records')
 
-    # Create a JSON response that includes the count and averages
     result_list = {
         'count_distinct_cnpj': count_distinct_cnpj,
         'avg_preco_compra': avg_preco_compra,
