@@ -4,37 +4,62 @@ import datetime
 
 app = Flask(__name__)
 
-df = pd.read_csv("api/bq-results-2009.csv")
+df = pd.read_csv("api/combustiveis2009.csv")
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/api/listarPorAnoTipo", methods=['GET'])
-def get_combustiveis():
-    # Obter os parametps para a query
-    ano = request.args.get('ano', type=int)
-    produto = request.args.get('produto', type=str)
-    limit = request.args.get('limit', type=int)
+# @app.route("/api/listarPorAnoTipo", methods=['GET'])
+# def get_combustiveis():
+#     # Obter os parametps para a query
+#     ano = request.args.get('ano', type=int)
+#     produto = request.args.get('produto', type=str)
+#     limit = request.args.get('limit', type=int)
 
-    if ano is None or produto is None:
-        return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
+#     if ano is None or produto is None:
+#         return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
 
+#     pd.options.display.float_format = "{:,.2f}".format
+
+#     # filtra o DataFrame com os parametros
+#     filtered_df = df.loc[(df['ano'] == ano) & (df['produto'] == produto), ['ano', 'produto', 'preco_venda', 'sigla_uf']]
+
+#     if filtered_df.empty:
+#         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+#     # opcao de limitar a quatidade de retorno
+#     if limit:
+#         filtered_df = filtered_df.head(limit)
+
+#     # converte DataFrame final pra uma lista de dicionário e depois json
+#     result_list = filtered_df.to_dict(orient='records')
+#     return jsonify(result_list)
+
+@app.route("/api/listaTiposCombustiveis", methods=['GET'])
+def get_combustiveis_tipos():
     pd.options.display.float_format = "{:,.2f}".format
 
-    # filtra o DataFrame com os parametros
-    filtered_df = df.loc[(df['ano'] == ano) & (df['produto'] == produto), ['ano', 'produto', 'preco_venda', 'sigla_uf']]
+    ano = request.args.get('ano', type=int)
+    limit = request.args.get('limit', type=int)
+
+    if ano is None:
+        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
+
+    filtered_df = df.loc[(df['ano'] == ano), ['produto']]
 
     if filtered_df.empty:
-        return jsonify({'status': 404, 'message': 'No data found'}), 404
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
 
-    # opcao de limitar a quatidade de retorno
+    distinct_produtos = filtered_df['produto'].unique()
+
     if limit:
-        filtered_df = filtered_df.head(limit)
+        distinct_produtos = distinct_produtos[:limit]
 
-    # converte DataFrame final pra uma lista de dicionário e depois json
-    result_list = filtered_df.to_dict(orient='records')
+    result_list = distinct_produtos.tolist()
+
     return jsonify(result_list)
+
 
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
@@ -45,7 +70,7 @@ def get_combustiveis_media():
     limit = request.args.get('limit', type=int)
 
     if anoFrom is None or produto is None:
-        return jsonify({'status': 400, 'message': 'Invalid parameters'}), 400
+        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
 
     if anoTo is None:
         anoTo = datetime.datetime.now().year
@@ -56,7 +81,7 @@ def get_combustiveis_media():
     filtered_df = df[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)) & (df['produto'] == produto)]
 
     if filtered_df.empty:
-        return jsonify({'status': 404, 'message': 'No data found'}), 404
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
 
     # Calculate the count of distinct 'cnpj_revenda'
     count_distinct_cnpj = filtered_df['cnpj_revenda'].nunique()
@@ -68,11 +93,9 @@ def get_combustiveis_media():
     # média preco_venda por produto e sigla_uf
     result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
 
-    # Option to limit the number of results
     if limit:
         result_df = result_df.head(limit)
 
-    # Convert DataFrame final to a list of dictionaries and then to JSON
     result_list = result_df.to_dict(orient='records')
 
     result_list = {
