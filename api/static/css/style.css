@@ -1,0 +1,77 @@
+*{
+    font-family: 'Poppins', sans-serif;
+}
+body{
+    margin: 0px;
+    padding: 0px;
+    background-color: #D3DEF0;
+}
+.menu-header{
+    box-shadow: #7e828a 3px 5px 8px 1px;
+    background-color: #078EF9;
+    border-radius: 16px;
+    color: #FFFFFF;
+}
+.dashboard-card{
+    box-shadow: #7e828a 3px 5px 8px 1px;
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    font-weight: bold;
+    color: #000000;
+}
+select{
+    border-radius: 16px;
+    padding: 3px 0px;
+    border: 1px solid #FFFFFF;
+    background-color: #FFFFFF;
+}
+.dashboard-card select{
+    width: 188px;
+}
+select:hover{
+    border-radius: 16px;
+    cursor: pointer;
+}
+input[type=text]{
+    width: 188px;
+    border-radius: 16px;
+    padding: 3px 0px;
+    border: 2px solid #078EF9;
+    background-color: #FFFFFF;
+    padding-left: 12px;
+}
+input[type=text]:hover{
+    border-radius: 16px;
+    cursor: pointer;
+}
+.header-submit{
+    border-radius: 8px;
+    padding: 3px 22px;
+    border: 1px solid #FFFFFF;
+    background-color: #FFFFFF;
+    font-weight: bold;
+    box-shadow: #545557 3px 5px 8px 1px;
+}
+.filter-select{
+    border: 2px solid #078EF9;
+}
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
