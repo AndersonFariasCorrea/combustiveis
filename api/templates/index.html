@@ -27,14 +27,14 @@
                         <div class="col-6">
                             <label for="year-from">Faixa de tempo</label>
                             <select name="year-from" class="year-from" id="year-from"
-                            ng-model="combustivel.yearFrom" ng-options="year for year in years">
+                            ng-model="combustivel.anoFrom" ng-options="year for year in years">
                                 <option value="" hidden> Selecione... </option>
                             </select>
                         </div>
                         <div class="col-4">
                             <label for="year-to">Até</label>
                             <select name="year-to" class="year-to" id="year-to"
-                            ng-model="combustivel.yearTo" ng-options="year for year in years | filter: yearIsGreaterFilter">
+                            ng-model="combustivel.anoTo" ng-options="year for year in years | filter: yearIsGreaterFilter">
                                 <option value="" hidden> Selecione... </option>
                             </select>
                         </div>
@@ -43,7 +43,7 @@
                 <div class="col-md-3 mx-0 mt-1 px-0">
                     <label for="year-to">Tipo do combustivel</label>
                     <select name="tipo-combustivel" class="tipo-combustivel filter-select" id="tipo-combustivel"
-                    ng-model="combustivel.tipo" ng-options="combustivel for combustivel in tipos_combustiveis">
+                    ng-model="combustivel.produto" ng-options="combustivel for combustivel in tipos_combustiveis">
                         <option value="" hidden> Selecione... </option>
                     </select>
                 </div>

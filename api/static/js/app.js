@@ -1,14 +1,13 @@
 var app = angular.module('myApp', []);
 app.controller('myCtrl', function ($scope) {
+    $scope.charts = [];
     $scope.data = null;
+    
     $(document).ready(function() {
         $scope.barChart({ anoFrom: 2009, produto: 'Gasolina' });
     });
     $scope.years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
     $scope.tipos_combustiveis = ['Disel', 'Gás', 'Gasolina'];
-    get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
-        $scope.tipos_combustiveis = result;
-    });
     $scope.estados = [
         { nome: 'Acre', sigla: 'AC' },
         { nome: 'Alagoas', sigla: 'AL' },
@@ -41,21 +40,27 @@ app.controller('myCtrl', function ($scope) {
     $scope.bairros = ["Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"];
 
     $scope.yearIsGreaterFilter = function (year) {
-        if (typeof $scope.combustivel?.yearFrom !== 'undefined') return year > $scope.combustivel.yearFrom;
+        if (typeof $scope.combustivel?.anoFrom !== 'undefined') return year > $scope.combustivel.anoFrom;
     };
 
     $scope.barChart = (query) => {
+        
         const ctx = document.getElementById('myChart');
-        if (ctx.length > 0) ctx.destroy();
+        if ($scope.charts['mediaPorAno']?.attached) $scope.charts['mediaPorAno'].destroy();
         
         get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
             if (result) {
-                new Chart(ctx, {
+                $scope.charts['mediaPorAno'] = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf),
                         datasets: [{
-                            label: '# Média de compra',
+                            label: 'Média de compra',
+                            data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Média de compra',
                             data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),
                             borderWidth: 1
                         }]
@@ -63,7 +68,7 @@ app.controller('myCtrl', function ($scope) {
                     options: {
                         scales: {
                             y: {
-                                beginAtZero: true
+                                beginAtZero: false
                             }
                         }
                     }
@@ -73,8 +78,7 @@ app.controller('myCtrl', function ($scope) {
             } else {
                 console.error('No list found in the response.');
             }
-        })
-        .catch(function (error) {
+        }).catch(function (error) {
             // Handle errors here
             console.error('Error:', error);
         });
@@ -82,10 +86,6 @@ app.controller('myCtrl', function ($scope) {
     
 
     $scope.filter = () => {
-        $scope.barChart({
-            anoFrom: $scope.combustivel.yearFrom,
-            anoTo: $scope.combustivel.yearTo,
-            produto: $scope.combustivel.tipo
-        });
+        $scope.barChart($scope.combustivel);
     }
 });

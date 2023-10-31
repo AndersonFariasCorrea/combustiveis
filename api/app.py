@@ -4,7 +4,7 @@ import datetime
 
 app = Flask(__name__)
 
-df = pd.read_csv("api/combustiveis2009.csv")
+df = pd.read_csv("api/bq-results-2009.csv")
 
 @app.route("/")
 def index():
@@ -77,7 +77,6 @@ def get_combustiveis_media():
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    # Filter the DataFrame with the parameters
     filtered_df = df[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)) & (df['produto'] == produto)]
 
     if filtered_df.empty:
