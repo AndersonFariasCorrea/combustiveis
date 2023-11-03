@@ -8,7 +8,9 @@ $.fn.extend({
             } else if (typeof this.style.MozUserSelect != 'undefined') {
                 this.style.MozUserSelect = 'none';
             } else {
-                this.onmousedown = function() { return false; };
+                this.onmousedown = function() { 
+                    return false;
+                }
             }
         }); 
     } 

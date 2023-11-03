@@ -1,5 +1,9 @@
 var app = angular.module('myApp', []);
 app.controller('myCtrl', function ($scope) {
+    $scope.init = function () {
+        $('.status-info').hide();
+    }
+    $scope.init();
     $scope.charts = [];
     $scope.data = null;
     
@@ -49,7 +53,11 @@ app.controller('myCtrl', function ($scope) {
         if ($scope.charts['mediaPorAno']?.attached) $scope.charts['mediaPorAno'].destroy();
         
         get('listarMediaPrecoPorAno', 'GET', query).then(function (result) {
-            if (result) {
+            if (result.length > 0 || Object.keys(result).length > 0) {
+                if (! $('.status-info').hasClass('d-none')) {
+                    $('.status-info').hide();
+                    $('#myChart').show();
+                }
                 $scope.charts['mediaPorAno'] = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -76,6 +84,8 @@ app.controller('myCtrl', function ($scope) {
                 $scope.data = result;
                 $scope.$digest();
             } else {
+                $('.status-info').show(500);
+                $('#myChart').hide(1300);
                 console.error('No list found in the response.');
             }
         }).catch(function (error) {
