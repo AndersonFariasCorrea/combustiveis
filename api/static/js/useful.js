@@ -12,7 +12,7 @@ $.fn.extend({
                     return false;
                 }
             }
-        }); 
+        });
     } 
 });
 function get(fn, method, data) {

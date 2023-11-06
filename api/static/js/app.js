@@ -6,12 +6,25 @@ app.controller('myCtrl', function ($scope) {
     $scope.init();
     $scope.charts = [];
     $scope.data = null;
+    $scope.anoFrom = 2009;
+    $scope.anoTo = 2023;
     
     $(document).ready(function() {
         $scope.barChart({ anoFrom: 2009, produto: 'Gasolina' });
+
+        get('listaTiposCombustiveis', 'GET', {
+            'anoFrom': Math.min(...$scope.years),
+            'anoTo': Math.min(...$scope.years)
+        }).then(function (result) {
+            $scope.tipos_combustiveis = result;
+        });
     });
-    $scope.years = [2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
-    $scope.tipos_combustiveis = ['Disel', 'Gás', 'Gasolina'];
+    $scope.years = [
+        2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+    ];
+    // $scope.tipos_combustiveis = [
+    //     'Diesel', 'Gás', 'Gasolina'
+    // ];
     $scope.estados = [
         { nome: 'Acre', sigla: 'AC' },
         { nome: 'Alagoas', sigla: 'AL' },
@@ -41,8 +54,9 @@ app.controller('myCtrl', function ($scope) {
         { nome: 'Sergipe', sigla: 'SE' },
         { nome: 'Tocantins', sigla: 'TO' }
     ];
-    $scope.bairros = ["Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"];
-
+    $scope.bairros = [
+        "Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"
+    ];
     $scope.yearIsGreaterFilter = function (year) {
         if (typeof $scope.combustivel?.anoFrom !== 'undefined') return year > $scope.combustivel.anoFrom;
     };
@@ -61,13 +75,8 @@ app.controller('myCtrl', function ($scope) {
                 $scope.charts['mediaPorAno'] = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf),
+                        labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf + ' ' + item.produto),
                         datasets: [{
-                            label: 'Média de compra',
-                            data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),
-                            borderWidth: 1
-                        },
-                        {
                             label: 'Média de compra',
                             data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),
                             borderWidth: 1
@@ -93,9 +102,19 @@ app.controller('myCtrl', function ($scope) {
             console.error('Error:', error);
         });
     };
-    
 
     $scope.filter = () => {
-        $scope.barChart($scope.combustivel);
+        $scope.barChart({
+            'anoFrom': $scope.combustivel?.anoFrom ?? '',
+            'anoTo': $scope.combustivel?.anoTo ?? '',
+            'produto': $scope.combustivel?.produto ?? '',
+            'sigla_uf': $scope.combustivel.estado?.sigla ?? '',
+            'id_municipio': $scope.combustivel.estado?.id_municipio ?? '',
+            'bairro_revenda': $scope.combustivel?.bairro ?? '',       
+            'cep_revenda': $scope.combustivel?.cep ?? '',
+            'cnpj_revenda': $scope.combustivel?.cnpj ?? '',
+            'unidade_medida': $scope.combustivel?.medida ?? '',
+            'limit': $scope.combustivel?.queryLimit ?? ''
+        });
     }
 });

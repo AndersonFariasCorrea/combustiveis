@@ -40,13 +40,17 @@ def index():
 def get_combustiveis_tipos():
     pd.options.display.float_format = "{:,.2f}".format
 
-    ano = request.args.get('ano', type=int)
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
     limit = request.args.get('limit', type=int)
 
-    if ano is None:
+    if anoFrom is None:
         return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
+    
+    if anoTo is None:
+        anoTo = datetime.datetime.now().year
 
-    filtered_df = df.loc[(df['ano'] == ano), ['produto']]
+    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['produto']]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
@@ -63,33 +67,59 @@ def get_combustiveis_tipos():
 
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
-    # Obtain the parameters for the query
+    
     anoFrom = request.args.get('anoFrom', type=int)
     anoTo = request.args.get('anoTo', type=int)
     produto = request.args.get('produto', type=str)
     limit = request.args.get('limit', type=int)
-
-    if anoFrom is None or produto is None:
-        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
-
-    if anoTo is None:
-        anoTo = datetime.datetime.now().year
+    
+    sigla_uf = request.args.get('sigla_uf', type=str)
+    id_municipio = request.args.get('id_municipio', type=int)
+    bairro_revenda = request.args.get('bairro_revenda', type=str)
+    cep_revenda = request.args.get('cep_revenda', type=str)
+    endereco_revenda = request.args.get('endereco_revenda', type=str)
+    cnpj_revenda = request.args.get('cnpj_revenda', type=str)
+    unidade_medida = request.args.get('unidade_medida', type=str)
+    preco_compra = request.args.get('preco_compra', type=float)
+    preco_venda = request.args.get('preco_venda', type=float)
 
     pd.options.display.float_format = "{:,.2f}".format
 
-    filtered_df = df[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)) & (df['produto'] == produto)]
+    conditions = {
+        # 'ano': anoFrom,
+        # 'ano': anoTo,
+        'produto': produto,
+        'sigla_uf': sigla_uf,
+        'municipio': id_municipio,
+        'bairro_revenda': bairro_revenda,
+        'cep_revenda': cep_revenda,
+        'cnpj_revenda': cnpj_revenda,
+        'unidade_medida': unidade_medida,
+        'preco_compra': preco_compra,
+        'preco_venda': preco_venda 
+    }
+    
+    filtered_df = df
+
+    if anoFrom is not None:
+        filtered_df = filtered_df[filtered_df['ano'] >= anoFrom]
+
+    if anoTo is not None:
+        filtered_df = filtered_df[filtered_df['ano'] <= anoTo]
+
+    # Filter based on other conditions
+    for key, value in conditions.items():
+        if value is not None and value != "":
+            filtered_df = filtered_df[filtered_df[key] == value]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
 
-    # Calculate the count of distinct 'cnpj_revenda'
     count_distinct_cnpj = filtered_df['cnpj_revenda'].nunique()
 
-    # Calculate the average 'preco_compra' and 'preco_venda'
     avg_preco_compra = filtered_df['preco_compra'].mean()
     avg_preco_venda = filtered_df['preco_venda'].mean()
-
-    # média preco_venda por produto e sigla_uf
+    
     result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
 
     if limit:
@@ -105,6 +135,7 @@ def get_combustiveis_media():
     }
 
     return jsonify(result_list)
+
 
 if __name__ == '__main__':
     app.run()
