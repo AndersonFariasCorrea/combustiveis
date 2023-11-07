@@ -10,32 +10,6 @@ df = pd.read_csv("api/bq-results-2009.csv")
 def index():
     return render_template("index.html")
 
-# @app.route("/api/listarPorAnoTipo", methods=['GET'])
-# def get_combustiveis():
-#     # Obter os parametps para a query
-#     ano = request.args.get('ano', type=int)
-#     produto = request.args.get('produto', type=str)
-#     limit = request.args.get('limit', type=int)
-
-#     if ano is None or produto is None:
-#         return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
-
-#     pd.options.display.float_format = "{:,.2f}".format
-
-#     # filtra o DataFrame com os parametros
-#     filtered_df = df.loc[(df['ano'] == ano) & (df['produto'] == produto), ['ano', 'produto', 'preco_venda', 'sigla_uf']]
-
-#     if filtered_df.empty:
-#         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
-
-#     # opcao de limitar a quatidade de retorno
-#     if limit:
-#         filtered_df = filtered_df.head(limit)
-
-#     # converte DataFrame final pra uma lista de dicionário e depois json
-#     result_list = filtered_df.to_dict(orient='records')
-#     return jsonify(result_list)
-
 @app.route("/api/listaTiposCombustiveis", methods=['GET'])
 def get_combustiveis_tipos():
     pd.options.display.float_format = "{:,.2f}".format
@@ -76,7 +50,7 @@ def get_combustiveis_media():
     sigla_uf = request.args.get('sigla_uf', type=str)
     id_municipio = request.args.get('id_municipio', type=int)
     bairro_revenda = request.args.get('bairro_revenda', type=str)
-    cep_revenda = request.args.get('cep_revenda', type=str)
+    cep_revenda = request.args.get('cep_revenda', type=int)
     endereco_revenda = request.args.get('endereco_revenda', type=str)
     cnpj_revenda = request.args.get('cnpj_revenda', type=str)
     unidade_medida = request.args.get('unidade_medida', type=str)
@@ -86,8 +60,6 @@ def get_combustiveis_media():
     pd.options.display.float_format = "{:,.2f}".format
 
     conditions = {
-        # 'ano': anoFrom,
-        # 'ano': anoTo,
         'produto': produto,
         'sigla_uf': sigla_uf,
         'municipio': id_municipio,
