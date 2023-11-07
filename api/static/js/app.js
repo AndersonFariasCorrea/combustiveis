@@ -2,7 +2,9 @@ var app = angular.module('myApp', []);
 app.controller('myCtrl', function ($scope) {
     $scope.init = function () {
         $('.status-info').hide();
+        $('body').show();
     }
+
     $scope.init();
     $scope.charts = [];
     $scope.data = null;
@@ -14,7 +16,7 @@ app.controller('myCtrl', function ($scope) {
 
         get('listaTiposCombustiveis', 'GET', {
             'anoFrom': Math.min(...$scope.years),
-            'anoTo': Math.min(...$scope.years)
+            'anoTo': Math.max(...$scope.years)
         }).then(function (result) {
             $scope.tipos_combustiveis = result;
         });
@@ -22,9 +24,6 @@ app.controller('myCtrl', function ($scope) {
     $scope.years = [
         2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
     ];
-    // $scope.tipos_combustiveis = [
-    //     'Diesel', 'Gás', 'Gasolina'
-    // ];
     $scope.estados = [
         { nome: 'Acre', sigla: 'AC' },
         { nome: 'Alagoas', sigla: 'AL' },
@@ -94,7 +93,7 @@ app.controller('myCtrl', function ($scope) {
                 $scope.$digest();
             } else {
                 $('.status-info').show(500);
-                $('#myChart').hide(1300);
+                $('#myChart').hide(1000);
                 console.error('No list found in the response.');
             }
         }).catch(function (error) {
