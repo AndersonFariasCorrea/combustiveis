@@ -71,10 +71,11 @@ app.controller('myCtrl', function ($scope) {
                     $('.status-info').hide();
                     $('#myChart').show();
                 }
+                let label = 'nome_estabelecimento' in result.list[0] ? 'nome_estabelecimento' : 'sigla_uf'
                 $scope.charts['mediaPorAno'] = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: result.list.filter(item => item.sigla_uf).map(item => item.sigla_uf + ' ' + item.produto),
+                        labels: result.list.filter(item => item[label]).map(item => item[label] + ' ' + item.produto),
                         datasets: [{
                             label: 'Média de compra',
                             data: result.list.filter(item => item.preco_venda).map(item => item.preco_venda),

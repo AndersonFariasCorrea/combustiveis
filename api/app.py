@@ -40,6 +40,56 @@ def get_combustiveis_tipos():
 
     return jsonify(result_list)
 
+@app.route("/api/listaEstados", methods=['GET'])
+def get_combustiveis_tipos():
+    pd.options.display.float_format = "{:,.2f}".format
+
+    sigla_uf = request.args.get('sigla_uf', type=str)
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
+    limit = request.args.get('limit', type=int)
+
+    if sigla_uf is None:
+        filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['sigla_uf']]
+    else:
+        filtered_df = df.loc['produto']
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_produtos = filtered_df['produto'].unique()
+
+    if limit:
+        distinct_produtos = distinct_produtos[:limit]
+
+    result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
+@app.route("/api/listaCidades", methods=['GET'])
+def get_combustiveis_tipos():
+    pd.options.display.float_format = "{:,.2f}".format
+
+    sigla_uf = request.args.get('sigla_uf', type=str)
+    limit = request.args.get('limit', type=int)
+
+    if sigla_uf is None:
+        filtered_df = df.loc[((df['sigla_uf'] == sigla_uf)), ['cidade']]
+    else:
+        filtered_df = df.loc['produto']
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_produtos = filtered_df['produto'].unique()
+
+    if limit:
+        distinct_produtos = distinct_produtos[:limit]
+
+    result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
 
 @app.route("/api/listaCidades", methods=['GET'])
 def get_combustiveis_tipos():
@@ -83,7 +133,7 @@ def get_combustiveis_media():
     bairro_revenda = request.args.get('bairro_revenda', type=str)
     cep_revenda = request.args.get('cep_revenda', type=int)
     endereco_revenda = request.args.get('endereco_revenda', type=str)
-    cnpj_revenda = request.args.get('cnpj_revenda', type=str)
+    cnpj_revenda = request.args.get('cnpj_revenda', type=int)
     unidade_medida = request.args.get('unidade_medida', type=str)
     preco_compra = request.args.get('preco_compra', type=float)
     preco_venda = request.args.get('preco_venda', type=float)
@@ -123,12 +173,28 @@ def get_combustiveis_media():
     avg_preco_compra = filtered_df['preco_compra'].mean()
     avg_preco_venda = filtered_df['preco_venda'].mean()
     
-    result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
+    if cnpj_revenda is not None and len(str(cnpj_revenda)) > 0:
+        result_df = filtered_df.groupby(["produto", "nome_estabelecimento", "cep_revenda"])["preco_venda"].mean().reset_index()
+
+    if cep_revenda is not None and len(str(cep_revenda)) > 0:
+        result_df = filtered_df.groupby(["produto", "nome_estabelecimento", "sigla_uf", "cnpj_revenda", "bairro_revenda"])["preco_venda"].mean().reset_index()
+
+    else:    
+        result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
 
     if limit:
         result_df = result_df.head(limit)
 
     result_list = result_df.to_dict(orient='records')
+
+    if count_distinct_cnpj != count_distinct_cnpj:
+        count_distinct_cnpj = 0
+
+    if avg_preco_compra != avg_preco_compra:
+        avg_preco_compra = 0
+
+    if avg_preco_venda != avg_preco_venda:
+        avg_preco_venda = 0
 
     result_list = {
         'count_distinct_cnpj': count_distinct_cnpj,
