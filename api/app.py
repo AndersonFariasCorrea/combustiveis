@@ -6,11 +6,42 @@ app = Flask(__name__)
 
 df = pd.read_csv("api/bq-results-2009.csv")
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/api/listaTiposCombustiveis", methods=['GET'])
+def get_combustiveis_tipos():
+    pd.options.display.float_format = "{:,.2f}".format
+
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
+    limit = request.args.get('limit', type=int)
+
+    if anoFrom is None:
+        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
+    
+    if anoTo is None:
+        anoTo = datetime.datetime.now().year
+
+    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['produto']]
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_produtos = filtered_df['produto'].unique()
+
+    if limit:
+        distinct_produtos = distinct_produtos[:limit]
+
+    result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
+
+@app.route("/api/listaCidades", methods=['GET'])
 def get_combustiveis_tipos():
     pd.options.display.float_format = "{:,.2f}".format
 
@@ -110,7 +141,8 @@ def get_combustiveis_media():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, port=5000, host='0.0.0.0')
+
 
 # FORMAT PLUS SAMPLE FROM TABLE
 # | ano  | sigla_uf | id_municipio |   bairro_revenda  | cep_revenda|    endereco_revenda   |   cnpj_revenda |   nome_estabelecimento  |
