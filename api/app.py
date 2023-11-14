@@ -38,6 +38,56 @@ def get_combustiveis_tipos():
 
     return jsonify(result_list)
 
+@app.route("/api/listaEstados", methods=['GET'])
+def get_combustiveis_tipos():
+    pd.options.display.float_format = "{:,.2f}".format
+
+    sigla_uf = request.args.get('sigla_uf', type=str)
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
+    limit = request.args.get('limit', type=int)
+
+    if sigla_uf is None:
+        filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['sigla_uf']]
+    else:
+        filtered_df = df.loc['produto']
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_produtos = filtered_df['produto'].unique()
+
+    if limit:
+        distinct_produtos = distinct_produtos[:limit]
+
+    result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
+@app.route("/api/listaCidades", methods=['GET'])
+def get_combustiveis_tipos():
+    pd.options.display.float_format = "{:,.2f}".format
+
+    sigla_uf = request.args.get('sigla_uf', type=str)
+    limit = request.args.get('limit', type=int)
+
+    if sigla_uf is None:
+        filtered_df = df.loc[((df['sigla_uf'] == sigla_uf)), ['cidade']]
+    else:
+        filtered_df = df.loc['produto']
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_produtos = filtered_df['produto'].unique()
+
+    if limit:
+        distinct_produtos = distinct_produtos[:limit]
+
+    result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
 
 @app.route("/api/listarMediaPrecoPorAno", methods=['GET'])
 def get_combustiveis_media():
