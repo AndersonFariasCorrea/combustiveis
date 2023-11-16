@@ -6,11 +6,9 @@ app = Flask(__name__)
 
 df = pd.read_csv("api/bq-results-2009.csv")
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/api/listaTiposCombustiveis", methods=['GET'])
 def get_combustiveis_tipos():
@@ -26,86 +24,8 @@ def get_combustiveis_tipos():
     if anoTo is None:
         anoTo = datetime.datetime.now().year
 
-    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['produto']]
+    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo) & (df['produto'] != 'Glp')), ['produto']]
 
-    if filtered_df.empty:
-        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
-
-    distinct_produtos = filtered_df['produto'].unique()
-
-    if limit:
-        distinct_produtos = distinct_produtos[:limit]
-
-    result_list = distinct_produtos.tolist()
-
-    return jsonify(result_list)
-
-@app.route("/api/listaEstados", methods=['GET'])
-def get_combustiveis_tipos():
-    pd.options.display.float_format = "{:,.2f}".format
-
-    sigla_uf = request.args.get('sigla_uf', type=str)
-    anoFrom = request.args.get('anoFrom', type=int)
-    anoTo = request.args.get('anoTo', type=int)
-    limit = request.args.get('limit', type=int)
-
-    if sigla_uf is None:
-        filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['sigla_uf']]
-    else:
-        filtered_df = df.loc['produto']
-
-    if filtered_df.empty:
-        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
-
-    distinct_produtos = filtered_df['produto'].unique()
-
-    if limit:
-        distinct_produtos = distinct_produtos[:limit]
-
-    result_list = distinct_produtos.tolist()
-
-    return jsonify(result_list)
-
-@app.route("/api/listaCidades", methods=['GET'])
-def get_combustiveis_tipos():
-    pd.options.display.float_format = "{:,.2f}".format
-
-    sigla_uf = request.args.get('sigla_uf', type=str)
-    limit = request.args.get('limit', type=int)
-
-    if sigla_uf is None:
-        filtered_df = df.loc[((df['sigla_uf'] == sigla_uf)), ['cidade']]
-    else:
-        filtered_df = df.loc['produto']
-
-    if filtered_df.empty:
-        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
-
-    distinct_produtos = filtered_df['produto'].unique()
-
-    if limit:
-        distinct_produtos = distinct_produtos[:limit]
-
-    result_list = distinct_produtos.tolist()
-
-    return jsonify(result_list)
-
-
-@app.route("/api/listaCidades", methods=['GET'])
-def get_combustiveis_tipos():
-    pd.options.display.float_format = "{:,.2f}".format
-
-    anoFrom = request.args.get('anoFrom', type=int)
-    anoTo = request.args.get('anoTo', type=int)
-    limit = request.args.get('limit', type=int)
-
-    if anoFrom is None:
-        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
-    
-    if anoTo is None:
-        anoTo = datetime.datetime.now().year
-
-    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo)), ['produto']]
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
@@ -143,7 +63,7 @@ def get_combustiveis_media():
     conditions = {
         'produto': produto,
         'sigla_uf': sigla_uf,
-        'municipio': id_municipio,
+        'id_municipio': id_municipio,
         'bairro_revenda': bairro_revenda,
         'cep_revenda': cep_revenda,
         'cnpj_revenda': cnpj_revenda,
@@ -163,7 +83,8 @@ def get_combustiveis_media():
     # Filter based on other conditions
     for key, value in conditions.items():
         if value is not None and value != "":
-            filtered_df = filtered_df[filtered_df[key] == value]
+            filtered_df = filtered_df[(filtered_df[key] == value) & (filtered_df['produto'] != 'Glp')]
+
 
     if filtered_df.empty:
         return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
@@ -178,6 +99,9 @@ def get_combustiveis_media():
 
     if cep_revenda is not None and len(str(cep_revenda)) > 0:
         result_df = filtered_df.groupby(["produto", "nome_estabelecimento", "sigla_uf", "cnpj_revenda", "bairro_revenda"])["preco_venda"].mean().reset_index()
+        
+    if id_municipio is not None: 
+        result_df = filtered_df.groupby(["produto", "id_municipio"])["preco_venda"].mean().reset_index()
 
     else:    
         result_df = filtered_df.groupby(["produto", "sigla_uf"])["preco_venda"].mean().reset_index()
@@ -218,3 +142,5 @@ if __name__ == '__main__':
 # | bandeira_revenda | data_coleta | produto | unidade_medida | preco_compra | preco_venda |
 # |------------------|-------------|---------|----------------|--------------|-------------|
 # |     Branca       | 2009-07-06  | Diesel  |  R$/litro      |    -         |   1.999     |
+
+# https://servicodados.ibge.gov.br/api/v1/localidades/municipios/3530508 get municipio

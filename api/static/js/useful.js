@@ -1,4 +1,4 @@
-let url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+let endpoint = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/`;
 
 $.fn.extend({ 
     disableSelection: function() { 
@@ -17,8 +17,9 @@ $.fn.extend({
 });
 function get(fn, method, data) {
     return new Promise(function(resolve, reject) {
+        data = data ?? '';
         $.ajax({
-            url: `${url}/api/${fn}`,
+            url: `${fn}`,
             method: method,
             data: data,
             dataType: 'json'
@@ -34,8 +35,7 @@ function get(fn, method, data) {
             console.error('An error occurred, jqXHR:', jqXHR);
             reject([]);
         });
-    })
-    .catch(function(error) {
+    }).catch(function(error) {
         console.error('Error or empty result:', error);
         return []; 
     });
