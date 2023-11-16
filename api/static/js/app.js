@@ -23,11 +23,9 @@ app.controller('myCtrl', function ($scope, $http) {
             $scope.estados = result;
         });
     });
+    
     $scope.years = [
         2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
-    ];
-    $scope.bairros = [
-        "Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"
     ];
     $scope.yearIsGreaterFilter = function (year) {
         if (typeof $scope.combustivel?.anoFrom !== 'undefined') return year > $scope.combustivel.anoFrom;
@@ -39,6 +37,10 @@ app.controller('myCtrl', function ($scope, $http) {
             $scope.$digest();
         });
     }
+
+    $scope.bairros = [
+        "Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"
+    ];
 
     $scope.barChart = (query) => {
         

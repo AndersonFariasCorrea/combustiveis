@@ -55,8 +55,6 @@ def get_combustiveis_media():
     endereco_revenda = request.args.get('endereco_revenda', type=str)
     cnpj_revenda = request.args.get('cnpj_revenda', type=int)
     unidade_medida = request.args.get('unidade_medida', type=str)
-    preco_compra = request.args.get('preco_compra', type=float)
-    preco_venda = request.args.get('preco_venda', type=float)
 
     pd.options.display.float_format = "{:,.2f}".format
 
@@ -67,9 +65,7 @@ def get_combustiveis_media():
         'bairro_revenda': bairro_revenda,
         'cep_revenda': cep_revenda,
         'cnpj_revenda': cnpj_revenda,
-        'unidade_medida': unidade_medida,
-        'preco_compra': preco_compra,
-        'preco_venda': preco_venda 
+        'unidade_medida': unidade_medida
     }
     
     filtered_df = df
