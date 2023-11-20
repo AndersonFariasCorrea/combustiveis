@@ -4,7 +4,7 @@ import datetime
 
 app = Flask(__name__)
 
-df = pd.read_csv("api/bq-results-2009.csv")
+df = pd.read_csv("api/combustiveis.csv")
 
 @app.route("/")
 def index():
@@ -36,6 +36,36 @@ def get_combustiveis_tipos():
         distinct_produtos = distinct_produtos[:limit]
 
     result_list = distinct_produtos.tolist()
+
+    return jsonify(result_list)
+
+
+@app.route("/api/listaBairros", methods=['GET'])
+def get_bairros():
+
+    id_municipio = request.args.get('id_municipio', type=int)
+    anoFrom = request.args.get('anoFrom', type=int)
+    anoTo = request.args.get('anoTo', type=int)
+    limit = request.args.get('limit', type=int)
+
+    if anoFrom is None:
+        return jsonify({'status': 400, 'msg': 'Parametros inválidos'}), 400
+    
+    if anoTo is None:
+        anoTo = datetime.datetime.now().year
+
+    filtered_df = df.loc[((df['ano'] >= anoFrom) & (df['ano'] <= anoTo) & (df['id_municipio'] == id_municipio)), ['bairro_revenda']]
+
+
+    if filtered_df.empty:
+        return jsonify({'status': 404, 'msg': 'Nenhum dado encontrado'}), 404
+
+    distinct_bairros = filtered_df['bairro_revenda'].unique()
+
+    if limit:
+        distinct_bairros = distinct_bairros[:limit]
+
+    result_list = distinct_bairros.tolist()
 
     return jsonify(result_list)
 

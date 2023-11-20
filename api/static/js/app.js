@@ -38,9 +38,16 @@ app.controller('myCtrl', function ($scope, $http) {
         });
     }
 
-    $scope.bairros = [
-        "Morada do Sol", "Centro", "Centro Oeste", "Centro Sul"
-    ];
+    $scope.getNeighborhoodByCity = (city) => {
+        get(`${endpoint}listaBairros`, 'GET', {
+            'id_municipio': city,
+            'anoFrom': $scope.anoFrom,
+            'anoTo': $scope.anoTo
+        }).then(function (result) {
+            $scope.bairros = result;
+            $scope.$digest();
+        });
+    }
 
     $scope.barChart = (query) => {
         
@@ -54,7 +61,7 @@ app.controller('myCtrl', function ($scope, $http) {
                     $('#myChart').show();
                 }
                 let label = 'nome_estabelecimento' in result.list[0] ? 'nome_estabelecimento' : 'sigla_uf'
-                if ($scope?.combustiveL != undefined && 'nome' in $scope.combustivel?.municipio) 
+                if ($scope?.combustivel?.municipio != undefined && 'nome' in $scope.combustivel?.municipio) 
                     label = result.list.filter(item => item).map(item => $scope.combustivel?.municipio.nome + ' ' + item.produto)
                 else 
                     label = result.list.filter(item => item[label]).map(item => item[label] + ' ' + item.produto)
@@ -96,12 +103,17 @@ app.controller('myCtrl', function ($scope, $http) {
             'anoTo': $scope.combustivel?.anoTo ?? '',
             'produto': $scope.combustivel?.produto ?? '',
             'sigla_uf': $scope.combustivel.estado?.sigla ?? '',
-            'id_municipio': $scope.combustivel?.municipio?.id ?? '',
+            'id_municipio': $scope.combustivel?.municipio?.id ?? '',    
             'bairro_revenda': $scope.combustivel?.bairro ?? '',       
             'cep_revenda': $scope.combustivel?.cep ?? '',
             'cnpj_revenda': $scope.combustivel?.cnpj ?? '',
             'unidade_medida': $scope.combustivel?.medida ?? '',
             'limit': $scope.combustivel?.queryLimit ?? ''
         });
+    }
+
+    $scope.clearFilters = () =>{
+        $scope.combustivel = [];
+        $scope.barChart({ anoFrom: 2009, produto: 'Gasolina' });
     }
 });

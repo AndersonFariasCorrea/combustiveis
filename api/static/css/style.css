@@ -44,6 +44,21 @@ input[type=text]:hover{
     border-radius: 16px;
     cursor: pointer;
 }
+
+.clear-filter-btn{
+    width: 80%;
+    border-radius: 16px;
+    padding: 3px 0px;
+    border: 2px solid #078EF9;
+    background-color: #FFFFFF;
+    padding-left: 12px;
+}
+
+.clear-filter-btn:hover{
+    background-color: rgb(122, 10, 10);
+    color: #FFFFFF;
+}
+
 .header-submit{
     border-radius: 8px;
     padding: 3px 22px;

@@ -2,7 +2,7 @@ import csv
 import os
 import db_conn
 
-csv_file_path = input("Enter the absolute path of the CSV file: ")
+csv_file_path = input("Informe o caminho absoluto para o arquivo CSV: ")
 
 table_name = "combustiveis"
 
@@ -29,7 +29,7 @@ try:
         cursor.execute(insert_sql, values)
 
     connection.commit()
-    print("Data has been inserted into the database.")
+    print("Os dados forma inseridos com sucesso.")
 
 except mysql.connector.Error as error:
     print("Error: ", error)
