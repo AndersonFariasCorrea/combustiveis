@@ -111,7 +111,7 @@
                                     </div>
                                     <div class="col">
                                         <select name="municipio-combustivel" class="municipio-combustivel filter-select" id="municipio-combustivel" 
-                                        ng-model="combustivel.municipio" ng-options="municipio.nome for municipio in municipios" ng-change="filter()">
+                                        ng-model="combustivel.municipio" ng-options="municipio.nome for municipio in municipios" ng-change="getNeighborhoodByCity(combustivel.municipio.id);filter()">
                                             <option value="" hidden>Selecione...</option>
                                         </select>
                                     </div>
