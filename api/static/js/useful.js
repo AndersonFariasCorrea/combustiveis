@@ -1,4 +1,4 @@
-let endpoint = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/`;
+let endpoint = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/api/`;
 
 $.fn.extend({ 
     disableSelection: function() { 
